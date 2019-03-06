@@ -25,14 +25,14 @@ class PCHeader extends React.Component {
             modalVisible:false,
             action:'login',
             hasLogined:false,
-            userNickName:'',
+            username:'fan',
             userid:0
         };
     }
     componentWillMount(){
 		if (localStorage.userid!='') {
 			this.setState({hasLogined:true});
-			this.setState({userNickName:localStorage.userNickName,userid:localStorage.userid});
+			this.setState({username:localStorage.username,userid:localStorage.userid});
 		}
 	};
     setModalVisible(value){
@@ -58,8 +58,8 @@ class PCHeader extends React.Component {
         // console.log(formData);
         var status;
         fetch("http://localhost:8080/index?action=" + this.state.action
-		+"&username="+formData.userName+"&password="+formData.password
-		+"&r_userName=" + formData.r_userName + "&r_password="
+		+"&username="+formData.username+"&password="+formData.password
+		+"&r_username=" + formData.r_username + "&r_password="
 		+ formData.r_password + "&r_confirmPassword="
         + formData.r_confirmPassword, myFetchOptions)
         .then(response => 
@@ -68,13 +68,13 @@ class PCHeader extends React.Component {
             })       
 		.then(
             json => {
-            this.setState({userNickName: json.NickUserName, userid: json.UserId});
+            this.setState({userid: json.UserId});
+            localStorage.username=json.UserName;
             localStorage.userid=json.UserId;
-            localStorage.userNickName=json.NickUserName;
-            console.log(json);
-        //     if(json)message.error("请求失败！！！")
+            //console.log(json);
+            if(UserId==0)message.error("密码或用户名错误！")//如果id为0就错误
         //  console.log(response);
-        // if(!json) message.success("请求成功！！！");
+            else message.success("请求成功！");
         });//
         
         if(this.state.action=="login"){
@@ -94,8 +94,8 @@ class PCHeader extends React.Component {
         }
     };
     logout(){
-        localStorage.userid='';
-        localStorage.userNickName='';
+        localStorage.username='';
+        
         this.setState({hasLogined:false});
     };
     render() {
@@ -104,7 +104,7 @@ class PCHeader extends React.Component {
         const userShow =this.state.hasLogined
         ?
         <Menu.Item key="logout" class="register">
-        <Button type = "primary" htmlType="button">{this.state.userNickName}</Button>
+        <Button type = "primary" htmlType="button">{this.state.username}</Button>
         &nbsp;&nbsp;
         <Link target="_blank">
             <Button type="primary" htmlType="button">个人中心</Button>

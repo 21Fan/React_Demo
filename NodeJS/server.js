@@ -10,19 +10,6 @@ var server = http.createServer(function(req,res){
     var GET=obj.query;
     console.log(url,GET);
 
-    
-    // switch(req.url){
-    //     case'/1.html':
-    //         res.write("111111");
-    //         break;
-    //     case'/2.html':
-    //         res.write("222222");
-    //         break;
-    //     default:
-    //         res.write('404');
-    //         break;
-
-    // }
     res.write('成功');
     res.end();
 });
