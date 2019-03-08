@@ -14,8 +14,10 @@
 }
 .register{
     float:left !important;
-    
 }
+.footer{
+    text-align: center;
+}   
 .ant-menu-horizontal > .ant-menu-item > a, .ant-menu-horizontal > .ant-menu-submenu > a
 
 {
@@ -23,3 +25,4 @@
   display: inline-block !important;
 
 }
+

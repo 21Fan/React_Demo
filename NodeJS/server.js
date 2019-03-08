@@ -8,8 +8,8 @@ var server = http.createServer(function(req,res){
     // console.log(obj);
     var url=obj.pathname;
     var GET=obj.query;
-    console.log(url,GET);
-
+    console.log(url,GET.username,GET.password);
+    
     res.write('成功');
     res.end();
 });

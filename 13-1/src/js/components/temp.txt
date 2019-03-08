@@ -1,0 +1,12 @@
+<Form.Item label="密码">
+            {getFieldDecorator('password',{rules:[{required:true,message:'请输入您的密码',},
+            {validator:this.validateToNextPassword,}],})
+                (<Input type="password" ></Input>
+            )}
+            </Form.Item>
+            <Form.Item label="确认密码">
+                {getFieldDecorator('confirm',{rules:[{required:true,message:'请再次输入您的密码',},
+                {validator:this.compareToFirstPassword,}],})
+                    (<Input type="password"{...getFieldProps('r_password')} onBlur={this.handleConfirmBlur}></Input>
+                )}
+            </Form.Item>
