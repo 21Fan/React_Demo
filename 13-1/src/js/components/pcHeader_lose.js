@@ -25,14 +25,20 @@ class PCHeader extends React.Component {
             modalVisible:false,
             action:'login',
             hasLogined:false,
-            userNickName:'',
-            userid:0
+            username:'fan',
+            userid:0,
+             confirmDirty: false,
+             autoCompleteResult: [],
         };
-    }
+    };
+    // state={
+    //     confirmDirty:false,
+    //     autoCompleteResult: '',
+    // };
     componentWillMount(){
 		if (localStorage.userid!='') {
 			this.setState({hasLogined:true});
-			this.setState({userNickName:localStorage.userNickName,userid:localStorage.userid});
+			this.setState({username:localStorage.username,userid:localStorage.userid});
 		}
 	};
     setModalVisible(value){
@@ -47,7 +53,7 @@ class PCHeader extends React.Component {
             {this.setState({current:e.key});}
         }   
     };
-   
+    
     handleSubmit(e){
         //页面开始向API进行提交数据
         e.preventDefault();
@@ -57,25 +63,25 @@ class PCHeader extends React.Component {
         var formData = this.props.form.getFieldsValue();
         // console.log(formData);
         var status;
-        
-        fetch("http://localhost:8080/index?action=" + this.state.action
-		+"&username="+formData.userName+"&password="+formData.password
-		+"&r_userName=" + formData.r_userName + "&r_password="
-		+ formData.r_password + "&r_confirmPassword="
-        + formData.r_confirmPassword, myFetchOptions)
+        //"http://localhost:8080/index?action=register&username=fan&pass"
+        fetch("http://surface-zhangkh:8080/index?action=" + this.state.action
+		+"&username="+formData.username+"&password="+formData.password
+		+"&r_username=" + formData.r_username + "&r_password="
+		+ formData.r_password , myFetchOptions)
         .then(response => 
             {
+                //console.log(response);
                 return response.json();
-            })       
+            })
 		.then(
             json => {
-            this.setState({userNickName: json.NickUserName, userid: json.UserId});
+            this.setState({userid: json.UserId});
+            localStorage.username=json.UserName;
             localStorage.userid=json.UserId;
-            localStorage.userNickName=json.NickUserName;
-            console.log(json);
-        //     if(json)message.error("请求失败！！！")
+            //console.log(json);
+            if(UserId==0)message.error("密码或用户名错误！")//如果id为0就错误
         //  console.log(response);
-        // if(!json) message.success("请求成功！！！");
+            else message.success("请求成功！");
         });//
         
         if(this.state.action=="login"){
@@ -86,7 +92,7 @@ class PCHeader extends React.Component {
         this.setModalVisible(false);
     };
 
-    callback(key){
+    callbacks(key){
         if(key==1){
         this.setState({action:'login'});
         }
@@ -95,17 +101,65 @@ class PCHeader extends React.Component {
         }
     };
     logout(){
-        localStorage.userid='';
-        localStorage.userNickName='';
+        localStorage.username='';
+        
         this.setState({hasLogined:false});
     };
+    // ConfirmPassword(name,event){
+
+    //     var newState={}
+    //     newState[name]=event.target.value;
+    //     this.setState(newState);
+    //     var formData = this.props.form.getFieldsValue();
+
+    //     co=document.getElementById('confirmpassword');
+    //     if(this.state.firstPasswd!=this.state.lastPasswd)
+    //     co.validateStatus="error";
+    // };
+    
+    handleConfirmBlur (e){
+        const value = e.target.value;
+        this.setState({confirmDirty:this.state.confirmDirty||!!value});
+    };
+    
+    compareToFirstPassword  (rule, value, callback)  {
+          
+        //let form = this.props.form;
+        if (value && value !== form.getFieldValue('password')) {
+          callback('Two passwords that you enter is inconsistent!');
+        } else {
+          callback();
+        }
+    };
+    validateToNextPassword  (rule, value, callback) {
+        var form = this.props.form;
+        if (value && this.state.confirmDirty) {
+          form.validateFields(["confirm"], { force: true });
+        }
+        callback();
+      };
+      handleWebsiteChange ( value ) {
+        let autoCompleteResult;
+        if (!value) {
+          autoCompleteResult = [];
+        } else {
+          autoCompleteResult = [".com", ".org", ".net"].map(
+            domain => `${value}${domain}`
+          );
+        }
+        this.setState({ autoCompleteResult });
+      };
+    
+    
+    
     render() {
         let{getFieldProps}=this.props.form;
-
+        const{getFieldDecorator} = this.props.form;
+        
         const userShow =this.state.hasLogined
         ?
         <Menu.Item key="logout" class="register">
-        <Button type = "primary" htmlType="button">{this.state.userName}</Button>
+        <Button type = "primary" htmlType="button">{this.state.username}</Button>
         &nbsp;&nbsp;
         <Link target="_blank">
             <Button type="primary" htmlType="button">个人中心</Button>
@@ -118,6 +172,8 @@ class PCHeader extends React.Component {
         <Menu.Item key="register" class="register">
             <Icon type="appstore"/>注册/登录
         </Menu.Item>;
+        
+        
         return (
             <header>
 
@@ -158,13 +214,14 @@ class PCHeader extends React.Component {
                             {userShow}
                         </Menu>
 
-<Modal title="用户中心" wrapClassName="vertical-center-modal" visible={this.state.modalVisible} onCancel={()=>this.setModalVisible(false)} onOk={()=>this.setModalVisible(false)} okText="关闭">
-<Tabs type="card" onChange={this.callback.bind(this)}>
+<Modal title="用户中心" wrapClassName="vertical-center-modal" visible={this.state.modalVisible} onCancel={()=>this.setModalVisible(false)} /*onOk={()=>this.setModalVisible(false)}*/ okText="关闭">
+<Tabs type="card" onChange={this.callbacks.bind(this)}>
  
     <TabPane tab="登录" key="1">
             <Form horizontal onSubmit={this.handleSubmit.bind(this)}>
                 <FormItem label="账户">
-                    <Input placeholder="请输入您的账号"{...getFieldProps('username')}></Input>
+                    <Input placeholder="请输入您的账号"{...getFieldProps('username')} id></Input>
+                    
                 </FormItem>
                 <FormItem label="密码"type="password">
                     <Input placeholder="请输入您的密码"{...getFieldProps('password')}></Input>
@@ -174,15 +231,46 @@ class PCHeader extends React.Component {
     </TabPane>
     <TabPane tab="注册" key="2">
         <Form horizontal onSubmit={this.handleSubmit.bind(this)}>
-            <FormItem label="账户">
+            <Form.Item label="账户">
                 <Input placeholder="请输入您的账号"{...getFieldProps('r_username')}></Input>
-            </FormItem>
-            <FormItem label="密码"type="password">
-                <Input placeholder="请输入您的密码"{...getFieldProps('r_password')}></Input>
-            </FormItem>
-            <FormItem label="确认密码"type="password">
-                <Input placeholder="请再次输入您的密码"{...getFieldProps('r_confirmPassword')}></Input>
-            </FormItem>
+
+            </Form.Item>
+
+
+
+
+
+            
+            <Form.Item
+          label="Password"
+        >
+          {getFieldDecorator('r_password', {
+            rules: [{
+              required: true, message: 'Please input your password!',
+            }, {
+                validator: this.validateToNextPassword.bind(this),
+            }],
+          })(
+            <Input type="password" />
+          )}
+        </Form.Item>
+        <Form.Item
+          label="Confirm Password"
+        >
+          {getFieldDecorator('confirm', {
+            rules: [{
+              required: true, message: 'Please confirm your password!',
+            }, {
+                validator: this.validateToNextPassword,
+            }],
+          })(
+            <Input type="password" onBlur={this.handleConfirmBlur.bind(this)} />
+          )}
+        </Form.Item>
+
+        
+            
+            
             <Button type="primary" htmlType="submit">注册</Button>
         </Form>
     </TabPane>

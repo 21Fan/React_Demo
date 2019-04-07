@@ -12,6 +12,7 @@ export default class PCFooter extends React.Component{
         };
     }
     
+    
     render(){
         const ShowYear =this.state.year;
         return(
