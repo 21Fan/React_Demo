@@ -26,7 +26,10 @@ class PCHeader extends React.Component {
             action:'login',
             hasLogined:false,
             userNickName:'',
-            userid:0
+            userid:0,
+
+            username:'aaa',
+            password:'aaa'
         };
     }
     componentWillMount(){
@@ -47,7 +50,17 @@ class PCHeader extends React.Component {
             {this.setState({current:e.key});}
         }   
     };
-   
+    StateCheck(){
+        //e.preventDefault();
+        localStorage.username='app';
+        localStorage.password='123';
+        var formData = this.props.form.getFieldsValue();
+        this.setState({username:formData.username,password:formData.password},()=>{
+            if(localStorage.username==this.state.username&&localStorage.password==this.state.password)
+        message.success("登陆成功");
+        else message.error("登陆失败");
+            });//没有修改成功  
+    }
     handleSubmit(e){
         //页面开始向API进行提交数据
         e.preventDefault();
@@ -169,7 +182,7 @@ class PCHeader extends React.Component {
                 <FormItem label="密码"type="password">
                     <Input placeholder="请输入您的密码"{...getFieldProps('password')}></Input>
                 </FormItem>
-                <Button type="primary" htmlType="submit">登录</Button>
+                <Button type="primary" htmlType="submit" onClick={this.StateCheck.bind(this)}>登录</Button>
             </Form>
     </TabPane>
     <TabPane tab="注册" key="2">
